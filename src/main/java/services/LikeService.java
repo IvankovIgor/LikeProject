@@ -1,6 +1,6 @@
 package services;
 
-interface LikeService {
+public interface LikeService {
     void like(String playerId);
     long getLikes(String playerId);
 }

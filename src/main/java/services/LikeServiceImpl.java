@@ -1,13 +1,18 @@
 package services;
 
-import org.hibernate.HibernateException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import javax.persistence.NoResultException;
+import java.lang.invoke.MethodHandles;
 
 class LikeServiceImpl implements LikeService {
+    @SuppressWarnings("ConstantNamingConvention")
+    private static final Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+
     private DatabaseService databaseService;
 
     LikeServiceImpl(DatabaseService databaseService) {
@@ -16,14 +21,25 @@ class LikeServiceImpl implements LikeService {
 
     public void like(String playerId) {
         try (Session session = databaseService.getSession()) {
+            Transaction tx = null;
             try {
-                long likes = getLikes(playerId);
-                updateLikes(session, playerId, likes + 1);
-            } catch (NoResultException e) {
-                e.printStackTrace();
+                tx = session.beginTransaction();
+                Query query = session.createQuery("UPDATE Player p SET p.likes = p.likes + 1 WHERE p.playerId = :playerId");
+                query.setParameter("playerId", playerId);
+                int success = query.executeUpdate();
+                if (success > 0)
+                    tx.commit();
+                else
+                    throw new Exception();
             }
-        } catch (HibernateException e) {
-            e.printStackTrace();
+            catch (Exception e) {
+                if (tx != null)
+                    tx.rollback();
+                logger.warn("like inside fail");
+                throw e;
+            }
+        } catch (Exception e) {
+            logger.warn("like outside fail");
         }
     }
 
@@ -35,27 +51,12 @@ class LikeServiceImpl implements LikeService {
                 query.setParameter("playerId", playerId);
                 likes = query.getSingleResult();
             } catch (NoResultException e) {
-                e.printStackTrace();
+                logger.warn("getLikes inside fail");
+                throw e;
             }
-        } catch (HibernateException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.warn("getLikes outside fail");
         }
         return likes;
-    }
-
-    private void updateLikes(Session session, String playerId, long likes) {
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-            Query query = session.createQuery("UPDATE Player p SET p.likes = :likes WHERE p.playerId = :playerId");
-            query.setParameter("playerId", playerId);
-            query.setParameter("likes", likes);
-            query.executeUpdate();
-            tx.commit();
-        }
-        catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
-        }
     }
 }

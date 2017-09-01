@@ -1,10 +1,17 @@
 package db;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import services.DatabaseService;
 
+import java.lang.invoke.MethodHandles;
+
 public class PlayerDAOImpl implements PlayerDAO {
+    @SuppressWarnings("ConstantNamingConvention")
+    private static final Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+
     private DatabaseService databaseService;
 
     public PlayerDAOImpl(DatabaseService databaseService) {
@@ -22,7 +29,11 @@ public class PlayerDAOImpl implements PlayerDAO {
             catch (Exception e) {
                 if (tx != null)
                     tx.rollback();
+                logger.warn("like inside fail");
+                throw e;
             }
+        } catch (Exception e) {
+            logger.warn("like outside fail");
         }
     }
 }

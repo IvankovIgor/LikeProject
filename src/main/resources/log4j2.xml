@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" monitorInterval="30">
+    <Properties>
+        <Property name="log_dir">out/${date:yyyy_MM_dd}</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{HH:mm:ss}] %-5p %-20c %x : %m%n"/>
+        </Console>
+        <RollingFile name="RollingFile" fileName="${log_dir}/like.log" filePattern="${log_dir}/like_%i.log.gz">
+            <PatternLayout pattern="[%d{MM-dd HH:mm:ss,SSS}, %r] %c %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="50MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+        <Async name="AsyncFile">
+            <AppenderRef ref="RollingFile"/>
+        </Async>
+        <Async name="AsyncConsole">
+            <AppenderRef ref="Console"/>
+        </Async>
+    </Appenders>
+    <Loggers>
+        <Root level="trace">
+            <AppenderRef ref="AsyncConsole" level="info"/>
+            <AppenderRef ref="AsyncFile" level="debug"/>
+        </Root>
+    </Loggers>
+</Configuration>

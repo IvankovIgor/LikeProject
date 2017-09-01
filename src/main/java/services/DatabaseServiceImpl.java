@@ -19,8 +19,13 @@ public class DatabaseServiceImpl implements DatabaseService {
         configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/likedb?useLegacyDatetimeCode=false&serverTimezone=UTC");
         configuration.setProperty("hibernate.connection.username", "root");
         configuration.setProperty("hibernate.connection.password", "root");
-        configuration.setProperty("hibernate.show_sql", "true");
+        configuration.setProperty("hibernate.show_sql", "false");
         configuration.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+        configuration.setProperty("hibernate.c3p0.min_size", "5");
+        configuration.setProperty("hibernate.c3p0.max_size", "20");
+        configuration.setProperty("hibernate.c3p0.timeout", "300");
+        configuration.setProperty("hibernate.c3p0.max_statements", "50");
+        configuration.setProperty("hibernate.c3p0.idle_test_period", "3000");
 
         StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
 
